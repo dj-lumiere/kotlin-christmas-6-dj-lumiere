@@ -29,6 +29,16 @@ fun areEveryOrderUnique(order: Map<String, Int>): Boolean {
     return true
 }
 
+fun categoryQuantityCount(order: Map<String, Int>): MutableMap<foodCategory, Int> {
+    val categoryQuantity: MutableMap<foodCategory, Int> = mutableMapOf()
+    for (category in foodCategory.entries) {
+        categoryQuantity[category] = 0
+    }
+    for ((item, quantity) in order) {
+        categoryQuantity[categoryOfFood[item]!!] = categoryQuantity[categoryOfFood[item]!!] + quantity
+    }
+    return categoryQuantity
+}
 
 fun main() {
     TODO("프로그램 구현")
