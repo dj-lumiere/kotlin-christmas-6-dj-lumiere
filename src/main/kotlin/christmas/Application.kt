@@ -147,6 +147,51 @@ fun main() = try {
         discountList[2] = false
         discountList[3] = false
     }
+    println("<할인 전 총주문 금액>")
+    println("${DecimalFormat("#,###").format(totalPrice)}원\n")
+    println("<증정 메뉴>")
+    val freeChampagne = isEligibleForFreeChampagne(totalPrice)
+    if (freeChampagne) {
+        totalDiscount += 25_000
+        println("샴페인 1개\n")
+    } else {
+        println("없음\n")
+    }
+    println("<혜택 내역>")
+    if (discountList[0]) {
+        println("크리스마스 디데이 할인: ${DecimalFormat("#,###").format(-christmasDDayDiscount(visitDate))}원")
+        totalDiscount += christmasDDayDiscount(visitDate)
+    }
+    if (discountList[1]) {
+        println("평일 할인: ${DecimalFormat("#,###").format(-2_023 * dessertQuantity)}원")
+        totalDiscount += 2_023 * dessertQuantity
+    }
+    if (discountList[2]) {
+        println("주말 할인: ${DecimalFormat("#,###").format(-2_023 * mainQuantity)}원")
+        totalDiscount += 2_023 * mainQuantity
+    }
+    if (discountList[3]) {
+        println("특별 할인: ${DecimalFormat("#,###").format(-1000)}원")
+        totalDiscount += 1000
+    }
+    if (freeChampagne) {
+        println("증정 이벤트: -25,000원")
+    }
+    if (discountList.all { !it } and !freeChampagne) {
+        println("없음")
+    }
+    println()
+    println("<총혜택 금액>")
+    println("${DecimalFormat("#,###").format(totalDiscount)}원")
+    if (freeChampagne) {
+        totalDiscount -= 25_000
+    }
+    println()
+    println("<할인 후 예상 결제 금액>")
+    println("${DecimalFormat("#,###").format(totalPrice - totalDiscount)}원")
+    if (freeChampagne) {
+        totalDiscount += 25_000
+    }
 } catch (e: IllegalArgumentException) {
     println(e.message)
 }
