@@ -126,6 +126,27 @@ fun main() = try {
     println(
         "12월 ${visitDay}일에 우테코 식당에서 받을 이벤트 혜택 미리 보기!\n"
     )
+    println("<주문 메뉴>")
+    val categoryQuantity = categoryQuantityCount(order)
+    var totalPrice = 0
+    for ((item, quantity) in order) {
+        println("$item ${quantity}개")
+        totalPrice = quantity * (foodPrice.getOrDefault(item, 0))
+    }
+    require(isOrderConsistOfOnlyDrink(categoryQuantity)) { "[ERROR] 유효하지 않은 주문입니다. 다시 입력해 주세요." }
+    val discountList = eligibleEvent(visitDate)
+    if (categoryQuantity[foodCategory.DESSERT] == 0) {
+        discountList[1] = false
+    }
+    if (categoryQuantity[foodCategory.MAIN] == 0) {
+        discountList[2] = false
+    }
+    if (totalPrice < 10_000) {
+        discountList[0] = false
+        discountList[1] = false
+        discountList[2] = false
+        discountList[3] = false
+    }
 } catch (e: IllegalArgumentException) {
     println(e.message)
 }
