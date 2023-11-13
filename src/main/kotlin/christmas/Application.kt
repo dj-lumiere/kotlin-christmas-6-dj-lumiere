@@ -10,6 +10,13 @@ fun parseOrder(input: String): Map<String, Int> {
     return order
 }
 
+fun areEveryFoodInMenu(order: Map<String, Int>): Boolean {
+    for ((item, _) in order) {
+        return categoryOfFood.containsKey(item)
+    }
+    return true
+}
+
 fun main() {
     TODO("프로그램 구현")
 }
