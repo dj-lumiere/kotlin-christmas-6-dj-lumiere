@@ -40,6 +40,10 @@ fun categoryQuantityCount(order: Map<String, Int>): MutableMap<foodCategory, Int
     return categoryQuantity
 }
 
+fun isOrderConsistOfOnlyDrink(categoryQuantity: Map<foodCategory, Int>): Boolean {
+    return (categoryQuantity[foodCategory.APPETIZER] == 0) and (categoryQuantity[foodCategory.MAIN] == 0) and (categoryQuantity[foodCategory.DESSERT] == 0)
+}
+
 fun main() {
     TODO("프로그램 구현")
 }
