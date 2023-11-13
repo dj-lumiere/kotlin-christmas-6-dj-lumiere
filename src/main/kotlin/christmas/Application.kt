@@ -176,12 +176,12 @@ fun main() = try {
         totalDiscount += christmasDDayDiscount(visitDate)
     }
     if (discountList[1]) {
-        println("평일 할인: ${DecimalFormat("#,###").format(-2_023 * dessertQuantity)}원")
-        totalDiscount += 2_023 * dessertQuantity
+        println("평일 할인: ${DecimalFormat("#,###").format(-2_023 * categoryQuantity.getValue(foodCategory.DESSERT))}원")
+        totalDiscount += 2_023 * categoryQuantity.getValue(foodCategory.DESSERT)
     }
     if (discountList[2]) {
-        println("주말 할인: ${DecimalFormat("#,###").format(-2_023 * mainQuantity)}원")
-        totalDiscount += 2_023 * mainQuantity
+        println("주말 할인: ${DecimalFormat("#,###").format(-2_023 * categoryQuantity.getValue(foodCategory.MAIN))}원")
+        totalDiscount += 2_023 * categoryQuantity.getValue(foodCategory.MAIN)
     }
     if (discountList[3]) {
         println("특별 할인: ${DecimalFormat("#,###").format(-1000)}원")
