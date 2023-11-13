@@ -50,6 +50,14 @@ fun isValidOrder(order: Map<String, Int>, categoryQuantity: Map<foodCategory, In
     ))
 }
 
+fun isValidDate(day: Int): Boolean {
+    return (1 <= day) and (day <= 31)
+}
+
+fun parseVisitDate(input: String): Int {
+    return input.toIntOrNull() ?: throw IllegalArgumentException("[ERROR] 유효하지 않은 날짜입니다. 다시 입력해 주세요.")
+}
+
 fun main() {
     TODO("프로그램 구현")
 }
