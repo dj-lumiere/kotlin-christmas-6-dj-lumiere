@@ -17,6 +17,14 @@ fun areEveryFoodInMenu(order: Map<String, Int>): Boolean {
     return true
 }
 
+fun areEveryOrderUnique(order: Map<String, Int>): Boolean {
+    val uniqueOrder: HashSet<String> = hashSetOf()
+    for ((item, _) in order) {
+        return uniqueOrder.add(item)
+    }
+    return true
+}
+
 fun main() {
     TODO("프로그램 구현")
 }
