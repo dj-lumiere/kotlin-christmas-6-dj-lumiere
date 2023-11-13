@@ -109,6 +109,19 @@ fun eligibleEvent(date: LocalDate): ArrayList<Boolean> {
     return eligibleEvents
 }
 
+fun eventBadge(totalDiscount: Int): String {
+    if (totalDiscount >= 20_000) {
+        return "산타"
+    }
+    if (totalDiscount >= 10_000) {
+        return "트리"
+    }
+    if (totalDiscount >= 5_000) {
+        return "별"
+    }
+    return "없음"
+}
+
 fun main() = try {
     println(
         "안녕하세요! 우테코 식당 12월 이벤트 플래너입니다.\n" + "12월 중 식당 예상 방문 날짜는 언제인가요? (숫자만 입력해 주세요!)"
@@ -192,6 +205,9 @@ fun main() = try {
     if (freeChampagne) {
         totalDiscount += 25_000
     }
+    println()
+    println("<12월 이벤트 배지>")
+    println(eventBadge(totalDiscount))
 } catch (e: IllegalArgumentException) {
     println(e.message)
 }
