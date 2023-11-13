@@ -1,5 +1,9 @@
 package christmas
 
+enum class foodCategory(name: String) {
+    APPETIZER("애피타이저"), MAIN("메인"), DESSERT("디저트"), DRINK("음료"), NO_CATEGORY("")
+}
+
 fun parseOrder(input: String): Map<String, Int> {
     val order: MutableMap<String, Int> = mutableMapOf()
     val menus: List<String> = input.split(",")
@@ -24,6 +28,7 @@ fun areEveryOrderUnique(order: Map<String, Int>): Boolean {
     }
     return true
 }
+
 
 fun main() {
     TODO("프로그램 구현")
