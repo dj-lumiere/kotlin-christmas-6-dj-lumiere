@@ -44,6 +44,12 @@ fun isOrderConsistOfOnlyDrink(categoryQuantity: Map<foodCategory, Int>): Boolean
     return (categoryQuantity[foodCategory.APPETIZER] == 0) and (categoryQuantity[foodCategory.MAIN] == 0) and (categoryQuantity[foodCategory.DESSERT] == 0)
 }
 
+fun isValidOrder(order: Map<String, Int>, categoryQuantity: Map<foodCategory, Int>): Boolean {
+    return (isThereTooManyFoodToOrder(order) and areEveryFoodInMenu(order) and areEveryOrderUnique(order) and !isOrderConsistOfOnlyDrink(
+        categoryQuantity
+    ))
+}
+
 fun main() {
     TODO("프로그램 구현")
 }
