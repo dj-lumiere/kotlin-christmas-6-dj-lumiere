@@ -1,24 +1,27 @@
 package christmas
 
 import camp.nextstep.edu.missionutils.Console
-import net.bytebuddy.implementation.bytecode.Addition
 import java.text.DecimalFormat
 import java.time.LocalDate
-import kotlin.collections.ArrayList
+
+object ErrorMessage{
+    val invalidOrder = "[ERROR] 유효하지 않은 주문입니다. 다시 입력해 주세요."
+    val invalidDate = "[ERROR] 유효하지 않은 날짜입니다. 다시 입력해 주세요."
+}
 
 data class Food(val name: String = "", val category: FoodCategory = FoodCategory.NO_CATEGORY, val price: Int = 0)
 class Order {
     val items: MutableMap<Food, Int> = mutableMapOf<Food, Int>().withDefault { 0 }
     val itemsPerCategory: MutableMap<FoodCategory, Int> = mutableMapOf<FoodCategory, Int>().withDefault { 0 }
-    private var totalQuantity: Int = 0
+    var totalQuantity: Int = 0
     var totalPrice: Int = 0
-    private var nonDrinkQuantity: Int = 0
+    var nonDrinkQuantity: Int = 0
     fun addItem(menuItem: Food, quantity: Int) {
-        require(!items.containsKey(menuItem)) { "[ERROR] 유효하지 않은 주문입니다. 다시 입력해 주세요." }
+        require(!items.containsKey(menuItem)) { ErrorMessage.invalidOrder }
         items[menuItem] = items.getValue(menuItem) + quantity
         totalQuantity += quantity
         totalPrice += quantity * menuItem.price
-        require(totalQuantity <= OrderConstraints.MAXIMUM_FOOD_PER_ORDER) { "[ERROR] 유효하지 않은 주문입니다. 다시 입력해 주세요." }
+        require(totalQuantity <= OrderConstraints.MAXIMUM_FOOD_PER_ORDER) { ErrorMessage.invalidOrder }
         val itemCategory = menuItem.category
         itemsPerCategory[itemCategory] = itemsPerCategory.getValue(itemCategory) + quantity
         if (itemCategory != FoodCategory.DRINK) {
@@ -67,7 +70,7 @@ object OrderConstraints {
 }
 
 class RestaurantMenu {
-    private val menuItems = mapOf(
+    val menuItems = mapOf(
         "양송이수프" to Food("양송이수프", FoodCategory.APPETIZER, 6_000),
         "타파스" to Food("타파스", FoodCategory.APPETIZER, 5_500),
         "시저샐러드" to Food("시저샐러드", FoodCategory.APPETIZER, 8_000),
@@ -83,7 +86,7 @@ class RestaurantMenu {
     ).withDefault { Food() }
 
     fun getItem(name: String): Food {
-        return menuItems[name] ?: throw IllegalArgumentException("[ERROR] 유효하지 않은 주문입니다. 다시 입력해 주세요.")
+        return menuItems[name] ?: throw IllegalArgumentException(ErrorMessage.invalidOrder)
     }
 
     fun hasItem(name: String): Boolean {
@@ -95,7 +98,7 @@ enum class DiscountEvent {
     CHRISTMAS_DDAY_EVENT, WEEKDAY_EVENT, WEEKEND_EVENT, SPECIAL_EVENT, FREE_CHAMPAGNE
 }
 
-class Discount(private val order: Order, private val visitDate: LocalDate) {
+class Discount(val order: Order, val visitDate: LocalDate) {
     var totalDiscount: Int = 0
     var additionalDiscount: Int = 0
     val eligibleEvents: MutableList<DiscountEvent> = mutableListOf()
@@ -109,7 +112,7 @@ class Discount(private val order: Order, private val visitDate: LocalDate) {
         return totalDiscount to additionalDiscount
     }
 
-    private fun applyChristmasDDayDiscount() {
+    fun applyChristmasDDayDiscount() {
         if (!isEligibleForChristmasDDayEvent(visitDate, order)) {
             return
         }
@@ -117,7 +120,7 @@ class Discount(private val order: Order, private val visitDate: LocalDate) {
         totalDiscount += christmasDDayDiscount(visitDate, order)
     }
 
-    private fun applyWeekdayDiscount() {
+    fun applyWeekdayDiscount() {
         if (!isEligibleForWeekdayEvent(visitDate, order)) {
             return
         }
@@ -128,7 +131,7 @@ class Discount(private val order: Order, private val visitDate: LocalDate) {
         totalDiscount += 2_023 * order.itemsPerCategory.getValue(FoodCategory.DESSERT)
     }
 
-    private fun applyWeekendDiscount() {
+    fun applyWeekendDiscount() {
         if (!isEligibleForWeekendEvent(visitDate, order)) {
             return
         }
@@ -139,7 +142,7 @@ class Discount(private val order: Order, private val visitDate: LocalDate) {
         totalDiscount += 2_023 * order.itemsPerCategory.getValue(FoodCategory.MAIN)
     }
 
-    private fun applySpecialDiscount() {
+    fun applySpecialDiscount() {
         if (!isEligibleForSpecialDiscount(visitDate, order)) {
             return
         }
@@ -147,7 +150,7 @@ class Discount(private val order: Order, private val visitDate: LocalDate) {
         totalDiscount += 1_000
     }
 
-    private fun applyFreeChampagne() {
+    fun applyFreeChampagne() {
         if (!isEligibleForFreeChampagne(order)) {
             return
         }
@@ -164,7 +167,7 @@ class InputView {
                 println("12월 중 식당 예상 방문 날짜는 언제인가요? (숫자만 입력해 주세요!)")
                 val visitDayRaw = readVisitDate()
                 val visitDay = parseVisitDate(visitDayRaw)
-                require(isValidDate(visitDay)) { "[ERROR] 유효하지 않은 날짜입니다. 다시 입력해 주세요." }
+                require(isValidDate(visitDay)) { ErrorMessage.invalidDate }
                 return visitDay
             } catch (e: IllegalArgumentException) {
                 println(e.message)
@@ -184,31 +187,31 @@ class InputView {
         }
     }
 
-    private fun readVisitDate(): String {
+    fun readVisitDate(): String {
         return Console.readLine()
     }
 
-    private fun readOrder(): String {
+    fun readOrder(): String {
         return Console.readLine()
     }
 
-    private fun parseVisitDate(input: String): Int {
-        return input.toIntOrNull() ?: throw IllegalArgumentException("[ERROR] 유효하지 않은 날짜입니다. 다시 입력해 주세요.")
+    fun parseVisitDate(input: String): Int {
+        return input.toIntOrNull() ?: throw IllegalArgumentException(ErrorMessage.invalidDate)
     }
 
-    private fun parseOrder(input: String, restaurantMenu: RestaurantMenu): Order {
+    fun parseOrder(input: String, restaurantMenu: RestaurantMenu): Order {
         val order = Order()
         val menus: List<String> = input.split(",")
         for (menu in menus) {
             val (itemName, quantity) = menu.split("-")
-            require(restaurantMenu.hasItem(itemName)) { "[ERROR] 유효하지 않은 주문입니다. 다시 입력해 주세요." }
+            require(restaurantMenu.hasItem(itemName)) { ErrorMessage.invalidOrder }
             val item = restaurantMenu.getItem(itemName)
             order.addItem(
                 item,
-                quantity.toIntOrNull() ?: throw IllegalArgumentException("[ERROR] 유효하지 않은 주문입니다. 다시 입력해 주세요.")
+                quantity.toIntOrNull() ?: throw IllegalArgumentException(ErrorMessage.invalidOrder)
             )
         }
-        require(!order.consistsOfOnlyDrinks()) { "[ERROR] 유효하지 않은 주문입니다. 다시 입력해 주세요." }
+        require(!order.consistsOfOnlyDrinks()) { ErrorMessage.invalidOrder }
         return order
     }
 }
@@ -228,19 +231,19 @@ class OutputView {
         printEventBadge(totalDiscount, additionalDiscount)
     }
 
-    private fun printOrder(order: Order) {
+    fun printOrder(order: Order) {
         println("<주문 메뉴>")
         for ((item, quantity) in order.items) {
             println("${item.name} ${quantity}개")
         }
     }
 
-    private fun printTotalPriceBeforeDiscount(order: Order) {
+    fun printTotalPriceBeforeDiscount(order: Order) {
         println("<할인 전 총주문 금액>")
         println("${DecimalFormat("#,###").format(order.totalPrice)}원\n")
     }
 
-    private fun printGiveAwayItem(order: Order) {
+    fun printGiveAwayItem(order: Order) {
         println("<증정 메뉴>")
         if (isEligibleForFreeChampagne(order)) {
             println("샴페인 1개\n")
@@ -249,7 +252,7 @@ class OutputView {
         }
     }
 
-    private fun printDiscount(discount: Discount, order: Order, visitDate: LocalDate) {
+    fun printDiscount(discount: Discount, order: Order, visitDate: LocalDate) {
         println("<혜택 내역>")
         if (discount.eligibleEvents.isEmpty()) {
             println("없음")
@@ -280,17 +283,17 @@ class OutputView {
         discount.eligibleEvents.forEach { event -> println(discountMessages[event]) }
     }
 
-    private fun printTotalDiscountAmount(totalDiscount: Int, additionalDiscount: Int) {
+    fun printTotalDiscountAmount(totalDiscount: Int, additionalDiscount: Int) {
         println("<총혜택 금액>")
         println("${DecimalFormat("#,###").format(totalDiscount + additionalDiscount)}원\n")
     }
 
-    private fun printNetAmount(totalPrice: Int, totalDiscount: Int) {
+    fun printNetAmount(totalPrice: Int, totalDiscount: Int) {
         println("<할인 후 예상 결제 금액>")
         println("${DecimalFormat("#,###").format(totalPrice - totalDiscount)}원\n")
     }
 
-    private fun printEventBadge(totalDiscount: Int, additionalDiscount: Int) {
+    fun printEventBadge(totalDiscount: Int, additionalDiscount: Int) {
         println("<12월 이벤트 배지>")
         println(eventBadge(totalDiscount + additionalDiscount))
     }
