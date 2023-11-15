@@ -5,7 +5,7 @@ import java.time.LocalDate
 class Discount(private val order: Order, private val visitDate: LocalDate) {
     var totalDiscount: Int = 0
     var additionalDiscount: Int = 0
-    val eligibleEvents: MutableList<DiscountEvent> = mutableListOf()
+    val eligibleEvents: MutableMap<DiscountEvent, Int> = mutableMapOf<DiscountEvent, Int>().withDefault { 0 }
 
     fun calculateTotalDiscount(): Pair<Int, Int> {
         applyChristmasDDayDiscount()
@@ -20,7 +20,7 @@ class Discount(private val order: Order, private val visitDate: LocalDate) {
         if (!isEligibleForChristmasDDayEvent(visitDate, order)) {
             return
         }
-        eligibleEvents.add(DiscountEvent.CHRISTMAS_DDAY_EVENT)
+        eligibleEvents[DiscountEvent.DDAY_EVENT] = christmasDDayDiscount(visitDate, order)
         totalDiscount += christmasDDayDiscount(visitDate, order)
     }
 
@@ -31,8 +31,9 @@ class Discount(private val order: Order, private val visitDate: LocalDate) {
         if (order.itemsPerCategory.getValue(FoodCategory.DESSERT) == 0) {
             return
         }
-        eligibleEvents.add(DiscountEvent.WEEKDAY_EVENT)
-        totalDiscount += 2_023 * order.itemsPerCategory.getValue(FoodCategory.DESSERT)
+        eligibleEvents[DiscountEvent.WEEKDAY_EVENT] =
+            EventConstraints.DISCOUNT_PER_ITEM * order.itemsPerCategory.getValue(FoodCategory.DESSERT)
+        totalDiscount += EventConstraints.DISCOUNT_PER_ITEM * order.itemsPerCategory.getValue(FoodCategory.DESSERT)
     }
 
     fun applyWeekendDiscount() {
@@ -42,24 +43,25 @@ class Discount(private val order: Order, private val visitDate: LocalDate) {
         if (order.itemsPerCategory.getValue(FoodCategory.MAIN) == 0) {
             return
         }
-        eligibleEvents.add(DiscountEvent.WEEKEND_EVENT)
-        totalDiscount += 2_023 * order.itemsPerCategory.getValue(FoodCategory.MAIN)
+        eligibleEvents[DiscountEvent.WEEKEND_EVENT] =
+            EventConstraints.DISCOUNT_PER_ITEM * order.itemsPerCategory.getValue(FoodCategory.MAIN)
+        totalDiscount += EventConstraints.DISCOUNT_PER_ITEM * order.itemsPerCategory.getValue(FoodCategory.MAIN)
     }
 
     fun applySpecialDiscount() {
         if (!isEligibleForSpecialDiscount(visitDate, order)) {
             return
         }
-        eligibleEvents.add(DiscountEvent.SPECIAL_EVENT)
-        totalDiscount += 1_000
+        eligibleEvents[DiscountEvent.SPECIAL_EVENT] = EventConstraints.SPECIAL_EVENT
+        totalDiscount += EventConstraints.SPECIAL_EVENT
     }
 
     fun applyFreeChampagne() {
         if (!isEligibleForFreeChampagne(order)) {
             return
         }
-        eligibleEvents.add(DiscountEvent.FREE_CHAMPAGNE)
-        additionalDiscount += 25_000
+        eligibleEvents[DiscountEvent.FREE_CHAMPAGNE] = EventConstraints.FREE_CHAMPAGNE_PRICE
+        additionalDiscount += EventConstraints.FREE_CHAMPAGNE_PRICE
     }
 }
 
@@ -67,7 +69,7 @@ fun christmasDDayDiscount(date: LocalDate, order: Order): Int {
     if (!isEligibleForChristmasDDayEvent(date, order)) {
         return 0
     }
-    return 1000 + (date.dayOfMonth - 1) * 100
+    return EventConstraints.DDAY_BASE_VALUE + (date.dayOfMonth - 1) * EventConstraints.DDAY_INCREMENT
 }
 
 fun isWeekend(date: LocalDate): Boolean {
