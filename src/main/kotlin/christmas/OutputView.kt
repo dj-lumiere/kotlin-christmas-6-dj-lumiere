@@ -12,10 +12,14 @@ class OutputView {
         printOrder(order)
         printTotalPriceBeforeDiscount(order)
         printGiveAwayItem(order)
-        printDiscount(discount, order, visitDate)
+        printDiscount(discount)
         printTotalDiscountAmount(totalDiscount, additionalDiscount)
         printNetAmount(totalPrice, totalDiscount)
         printEventBadge(totalDiscount, additionalDiscount)
+    }
+
+    private fun formatNumber(number: Int): String {
+        return DecimalFormat("#,###").format(number)
     }
 
     private fun printOrder(order: Order) {
@@ -27,7 +31,7 @@ class OutputView {
 
     private fun printTotalPriceBeforeDiscount(order: Order) {
         println("<할인 전 총주문 금액>")
-        println("${DecimalFormat("#,###").format(order.totalPrice)}원\n")
+        println("${formatNumber(order.totalPrice)}원\n")
     }
 
     private fun printGiveAwayItem(order: Order) {
@@ -39,45 +43,31 @@ class OutputView {
         }
     }
 
-    private fun printDiscount(discount: Discount, order: Order, visitDate: LocalDate) {
+    private fun printDiscount(discount: Discount) {
         println("<혜택 내역>")
-        if (discount.eligibleEvents.isEmpty()) {
+        val eligibleEvents = discount.eligibleEvents
+        if (eligibleEvents.isEmpty()) {
             println("없음")
             return
         }
-        val discountMessages = mapOf(
-            DiscountEvent.CHRISTMAS_DDAY_EVENT to "크리스마스 디데이 할인: ${
-                DecimalFormat("#,###").format(
-                    -christmasDDayDiscount(
-                        visitDate,
-                        order
-                    )
-                )
-            }원",
-            DiscountEvent.WEEKDAY_EVENT to "평일 할인: ${
-                DecimalFormat("#,###").format(
-                    -EventConstraints.DISCOUNT_PER_ITEM * order.itemsPerCategory.getValue(FoodCategory.DESSERT)
-                )
-            }원",
-            DiscountEvent.WEEKEND_EVENT to "주말 할인: ${
-                DecimalFormat("#,###").format(
-                    -EventConstraints.DISCOUNT_PER_ITEM * order.itemsPerCategory.getValue(FoodCategory.MAIN)
-                )
-            }원",
-            DiscountEvent.SPECIAL_EVENT to "특별 할인: ${DecimalFormat("#,###").format(-1000)}원",
-            DiscountEvent.FREE_CHAMPAGNE to "증정 이벤트: -25,000원"
+        val discountMessages: Map<DiscountEvent, String> = mapOf(
+            DiscountEvent.DDAY_EVENT to "크리스마스 디데이 할인: ${formatNumber(eligibleEvents.getValue(DiscountEvent.DDAY_EVENT))}원",
+            DiscountEvent.WEEKDAY_EVENT to "평일 할인: ${formatNumber(eligibleEvents.getValue(DiscountEvent.WEEKDAY_EVENT))}원",
+            DiscountEvent.WEEKEND_EVENT to "주말 할인: ${formatNumber(eligibleEvents.getValue(DiscountEvent.WEEKEND_EVENT))}원",
+            DiscountEvent.SPECIAL_EVENT to "특별 할인: ${formatNumber(eligibleEvents.getValue(DiscountEvent.SPECIAL_EVENT))}원",
+            DiscountEvent.FREE_CHAMPAGNE to "증정 이벤트: ${formatNumber(eligibleEvents.getValue(DiscountEvent.FREE_CHAMPAGNE))}원"
         )
-        discount.eligibleEvents.forEach { event -> println(discountMessages[event]) }
+        discount.eligibleEvents.forEach { (event, _) -> println(discountMessages[event]) }
     }
 
     private fun printTotalDiscountAmount(totalDiscount: Int, additionalDiscount: Int) {
         println("<총혜택 금액>")
-        println("${DecimalFormat("#,###").format(totalDiscount + additionalDiscount)}원\n")
+        println("${formatNumber(totalDiscount + additionalDiscount)}원\n")
     }
 
     private fun printNetAmount(totalPrice: Int, totalDiscount: Int) {
         println("<할인 후 예상 결제 금액>")
-        println("${DecimalFormat("#,###").format(totalPrice - totalDiscount)}원\n")
+        println("${formatNumber(totalPrice - totalDiscount)}원\n")
     }
 
     private fun printEventBadge(totalDiscount: Int, additionalDiscount: Int) {
