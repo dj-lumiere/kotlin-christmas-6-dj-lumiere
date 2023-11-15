@@ -8,6 +8,7 @@ class Order {
     var nonDrinkQuantity: Int = 0
     fun addItem(menuItem: Food, quantity: Int) {
         require(!items.containsKey(menuItem)) { ErrorMessage.INVALID_ORDER }
+        require(quantity <= 0) { ErrorMessage.INVALID_ORDER }
         items[menuItem] = items.getValue(menuItem) + quantity
         totalQuantity += quantity
         totalPrice += quantity * menuItem.price
