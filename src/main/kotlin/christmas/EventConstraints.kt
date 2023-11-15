@@ -23,4 +23,8 @@ object EventConstraints {
     const val DECEMBER_START = 1
     const val DECEMBER_END = 31
     const val DISCOUNT_PER_ITEM = 2_023
+    const val SPECIAL_EVENT = 1_000
+    const val DDAY_BASE_VALUE = 1_000
+    const val DDAY_INCREMENT = 100
+    const val FREE_CHAMPAGNE_PRICE = 25_000
 }
