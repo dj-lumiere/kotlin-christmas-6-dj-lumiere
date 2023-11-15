@@ -1,6 +1,7 @@
 package christmas
 
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 
 class OrderTest{
@@ -8,7 +9,7 @@ class OrderTest{
     fun `중복된 메뉴를 넣을 때 에러 발생`(){
         val menuitem = RestaurantMenu().menuItems
         val order = Order()
-        order.addItem(menuitem.getValue("양송이수프"), 1)
+        assertDoesNotThrow { order.addItem(menuitem.getValue("양송이수프"), 1) }
         assertThrows<IllegalArgumentException> { order.addItem(menuitem.getValue("양송이수프"), 1) }
     }
 
@@ -16,6 +17,7 @@ class OrderTest{
     fun `잘못된 수량을 넣을 때 에러 발생`(){
         val menuitem = RestaurantMenu().menuItems
         val order = Order()
+        assertDoesNotThrow { order.addItem(menuitem.getValue("양송이수프"), 1) }
         assertThrows<IllegalArgumentException> { order.addItem(menuitem.getValue("양송이수프"), -1) }
     }
 
